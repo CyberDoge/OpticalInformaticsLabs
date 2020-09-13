@@ -20,7 +20,6 @@ function findF_eps(eps) {
     return kArray.reduce((prevSum, k) => {
         return sum(prevSum, multiply(K_eps_x(eps,x_k(k)), f_x(x_k(k)), h_x) )
     }, 0)
-
 }
 
 console.log(findF_eps(0))

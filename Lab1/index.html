@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>math.js | plot</title>
+    <script src="https://unpkg.com/mathjs@7.2.0/dist/math.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-1.35.2.min.js"></script>
+</head>
+<body>
+<div id="plot"/>
+
+<script>
+    function draw() {
+        try {
+
+            const ALFA = 1, BETA = 1, a = -1, b = 1, p = -1, q = 1, m = n = 1000;
+
+            function f_x(x) {
+                return math.evaluate(`e^(i*${BETA}*${x})`);
+            }
+
+            function K_eps_x(eps, x) {
+                return math.evaluate(`e^(-${ALFA} * abs(${x} + i*${eps}))`);
+            }
+
+            const h_x = (b - a) / n;
+
+            function x_k(k) {
+                return a + k * h_x;
+            }
+
+            function findF_eps(eps) {
+                // [0, 1, ..., n - 1]
+                const kArray = Array.apply(null, {length: n - 1}).map(Number.call, Number);
+                return kArray.reduce((prevSum, k) => {
+                    return math.sum(prevSum, math.multiply(K_eps_x(eps, x_k(k)), f_x(x_k(k)), h_x))
+                }, 0)
+            }
+
+
+            // evaluate the expression repeatedly for different values of x
+            const xValues = math.range(p, q, (q - p) / m).toArray()
+            const yValues = xValues.map((x) => math.abs(findF_eps(x)))
+
+            // render the plot using plotly
+            const trace1 = {
+                x: xValues,
+                y: yValues,
+                type: 'scatter'
+            }
+            const data = [trace1]
+            Plotly.newPlot('plot', data)
+        } catch (err) {
+            console.error(err)
+            alert(err)
+        }
+    }
+
+    draw()
+</script>
+
+</body>
+</html>
