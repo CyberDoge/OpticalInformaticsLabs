@@ -7,13 +7,17 @@
     <script src="https://cdn.plot.ly/plotly-1.35.2.min.js"></script>
 </head>
 <body>
-<div id="plot"/>
+wait for result, it may take for long time
+<div id="primary_phase"/>
+<div id="primary_angle"/>
+<div id="phase"/>
+<div id="angle"/>
 
 <script>
     function draw() {
         try {
 
-            const ALFA = 1, BETA = 1, a = -1, b = 1, p = -1, q = 1, m = n = 1000;
+            const ALFA = 1, BETA = 1, a = -1, b = 1, p = -1, q = 1, m = n = 100;
 
             function f_x(x) {
                 return math.evaluate(`e^(i*${BETA}*${x})`);
@@ -29,27 +33,64 @@
                 return a + k * h_x;
             }
 
+            // [0, 1, ..., n - 1]
+            const kArray = Array.apply(null, {length: n - 1}).map(Number.call, Number);
+
             function findF_eps(eps) {
-                // [0, 1, ..., n - 1]
-                const kArray = Array.apply(null, {length: n - 1}).map(Number.call, Number);
                 return kArray.reduce((prevSum, k) => {
-                    return math.sum(prevSum, math.multiply(K_eps_x(eps, x_k(k)), f_x(x_k(k)), h_x))
+                    return math.sum(prevSum, math.multiply(
+                        K_eps_x(eps, x_k(k)), f_x(x_k(k)), h_x)
+                    )
                 }, 0)
             }
 
 
             // evaluate the expression repeatedly for different values of x
             const xValues = math.range(p, q, (q - p) / m).toArray()
-            const yValues = xValues.map((x) => math.abs(findF_eps(x)))
 
-            // render the plot using plotly
-            const trace1 = {
+            const primaryYValue = xValues.map(x => {
+                const f = f_x(x);
+                return ({
+                    phase: math.abs(f),
+                    angle: math.atan2(f.im, f.re)
+                })
+            })
+
+
+            const primaryPhase = {
                 x: xValues,
-                y: yValues,
+                y: primaryYValue.map(y => y.phase),
                 type: 'scatter'
             }
-            const data = [trace1]
-            Plotly.newPlot('plot', data)
+            const primaryAngle = {
+                x: xValues,
+                y: primaryYValue.map(y => y.angle),
+                type: 'scatter'
+            }
+
+            Plotly.newPlot('primary_phase', [primaryPhase])
+            Plotly.newPlot('primary_angle', [primaryAngle])
+
+            const yValues = xValues.map((x) => {
+                const res = findF_eps(x);
+                return {
+                    phase: math.abs(res),
+                    angle: math.atan2(res.im, res.re)
+                }
+            })
+
+            const phase = {
+                x: xValues,
+                y: yValues.map(y => y.phase),
+                type: 'scatter'
+            }
+            const angle = {
+                x: xValues,
+                y: yValues.map(y => y.angle),
+                type: 'scatter'
+            }
+            Plotly.newPlot('phase', [phase])
+            Plotly.newPlot('angle', [angle])
         } catch (err) {
             console.error(err)
             alert(err)
