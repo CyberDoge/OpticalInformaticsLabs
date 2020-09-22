@@ -6,91 +6,106 @@
     <script src="https://unpkg.com/mathjs@7.2.0/dist/math.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-1.35.2.min.js"></script>
 </head>
-<body>
+<body style="height: 100vh">
 wait for result, it may take for long time
-<div id="primary_phase"/>
-<div id="primary_angle"/>
-<div id="phase"/>
-<div id="angle"/>
-
+<!--<div style="height: 100%" id="primary_phase"/>-->
+<!--<div style="height: 100%" id="primary_angle"/>-->
+<div  id="phase"></div>
+<div  id="angle"></div>
+<label for="aNum">a</label>
+<input type="number" value="-1" id="aNum"/>
+<label for="bNum">b</label>
+<input type="number" value="1" id="bNum"/>
 <script>
+    let ALFA = 1, BETA = 1, a = -1, b = 1, p = -1, q = 1, m = n = 100;
+    const kArray = Array.apply(null, {length: n - 1}).map(Number.call, Number);
+    const xValues = math.range(p, q, (q - p) / m).toArray()
+    let h_x = (b - a) / n;
+    function f_x(x) {
+        return math.evaluate(`e^(i*${BETA}*${x})`);
+    }
+
+    function K_eps_x(eps, x) {
+        return math.evaluate(`e^(-${ALFA} * abs(${x} + i*${eps}))`);
+    }
+    function x_k(k) {
+        return a + k * h_x;
+    }
+
+    function findF_eps(eps) {
+        return kArray.reduce((prevSum, k) => {
+            return math.sum(prevSum, math.multiply(
+                K_eps_x(eps, x_k(k)), f_x(x_k(k)), h_x)
+            )
+        }, 0)
+    }
+    function renderPrimary(){
+        const primaryYValue = xValues.map(x => {
+            const f = f_x(x);
+            return ({
+                phase: math.abs(f),
+                angle: math.atan2(f.im, f.re)
+            })
+        })
+
+
+        const primaryPhase = {
+            x: xValues,
+            y: primaryYValue.map(y => y.phase),
+            type: 'scatter'
+        }
+        const primaryAngle = {
+            x: xValues,
+            y: primaryYValue.map(y => y.angle),
+            type: 'scatter'
+        }
+
+        Plotly.newPlot('primary_phase', [primaryPhase])
+        Plotly.newPlot('primary_angle', [primaryAngle])
+    }
+    function renderResult() {
+
+        const yValues = xValues.map((x) => {
+            const res = findF_eps(x);
+            return {
+                phase: math.abs(res),
+                angle: math.atan2(res.im, res.re)
+            }
+        })
+
+        const phase = {
+            x: xValues,
+            y: yValues.map(y => y.phase),
+            type: 'scatter'
+        }
+        const angle = {
+            x: xValues,
+            y: yValues.map(y => y.angle),
+            type: 'scatter'
+        }
+        Plotly.newPlot('phase', [phase])
+        Plotly.newPlot('angle', [angle])
+        console.log("ready")
+    }
     function draw() {
         try {
-
-            const ALFA = 1, BETA = 1, a = -1, b = 1, p = -1, q = 1, m = n = 100;
-
-            function f_x(x) {
-                return math.evaluate(`e^(i*${BETA}*${x})`);
+            document.getElementById("aNum").onchange = e => {
+                a = +e.target.value;
+                h_x = (b - a) / n;
+                renderResult()
             }
 
-            function K_eps_x(eps, x) {
-                return math.evaluate(`e^(-${ALFA} * abs(${x} + i*${eps}))`);
+            document.getElementById("bNum").onchange = e => {
+                b = +e.target.value;
+                h_x = (b - a) / n;
+                renderResult()
             }
-
-            const h_x = (b - a) / n;
-
-            function x_k(k) {
-                return a + k * h_x;
-            }
-
             // [0, 1, ..., n - 1]
-            const kArray = Array.apply(null, {length: n - 1}).map(Number.call, Number);
 
-            function findF_eps(eps) {
-                return kArray.reduce((prevSum, k) => {
-                    return math.sum(prevSum, math.multiply(
-                        K_eps_x(eps, x_k(k)), f_x(x_k(k)), h_x)
-                    )
-                }, 0)
-            }
-
-
+            // renderPrimary();
+            renderResult();
             // evaluate the expression repeatedly for different values of x
-            const xValues = math.range(p, q, (q - p) / m).toArray()
 
-            const primaryYValue = xValues.map(x => {
-                const f = f_x(x);
-                return ({
-                    phase: math.abs(f),
-                    angle: math.atan2(f.im, f.re)
-                })
-            })
-
-
-            const primaryPhase = {
-                x: xValues,
-                y: primaryYValue.map(y => y.phase),
-                type: 'scatter'
-            }
-            const primaryAngle = {
-                x: xValues,
-                y: primaryYValue.map(y => y.angle),
-                type: 'scatter'
-            }
-
-            Plotly.newPlot('primary_phase', [primaryPhase])
-            Plotly.newPlot('primary_angle', [primaryAngle])
-
-            const yValues = xValues.map((x) => {
-                const res = findF_eps(x);
-                return {
-                    phase: math.abs(res),
-                    angle: math.atan2(res.im, res.re)
-                }
-            })
-
-            const phase = {
-                x: xValues,
-                y: yValues.map(y => y.phase),
-                type: 'scatter'
-            }
-            const angle = {
-                x: xValues,
-                y: yValues.map(y => y.angle),
-                type: 'scatter'
-            }
-            Plotly.newPlot('phase', [phase])
-            Plotly.newPlot('angle', [angle])
         } catch (err) {
             console.error(err)
             alert(err)
