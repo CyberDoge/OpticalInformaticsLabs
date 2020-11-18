@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy import integrate
-
 a = 5
 M = 4096
 N = 512
@@ -16,11 +15,13 @@ plt.grid()
 plt.plot(line, np.absolute(gauss(line)))
 plt.xlabel("x")
 plt.ylabel("Аmplitude")
+plt.show()
 
 plt.grid()
 plt.plot(line, np.angle(gauss(line)))
 plt.xlabel("x")
 plt.ylabel("Phase")
+plt.show()
 
 def fft(y, b, a, M, N):
     h = (b - a) / (N - 1)
@@ -43,7 +44,7 @@ plt.grid()
 plt.plot(line, np.absolute(fft_y))
 plt.xlabel("x")
 plt.ylabel("Аmplitude")
-
+plt.show()
 plt.grid()
 plt.plot(line, np.angle(fft_y))
 plt.xlabel("x")
@@ -77,11 +78,13 @@ plt.grid()
 plt.plot(line, np.absolute(input_field(line)))
 plt.xlabel("x")
 plt.ylabel("Аmplitude")
+plt.show()
 
 plt.grid()
 plt.plot(line, np.angle(input_field(line)))
 plt.xlabel("x")
 plt.ylabel("Phase")
+plt.show()
 
 line = np.linspace(-a, a, N, endpoint=False)
 fft_y, interval = fft(input_field(line), a, -a, M, N)
@@ -91,11 +94,13 @@ plt.grid()
 plt.plot(line, np.absolute(fft_y))
 plt.xlabel("x")
 plt.ylabel("Аmplitude")
+plt.show()
 
 plt.grid()
 plt.plot(line, np.angle(fft_y))
 plt.xlabel("x")
 plt.ylabel("Phase")
+plt.show()
 
 def analytical_transformation(xi):
     return ((50 * np.pi**2 * xi ** 2 - 1) * np.sin(10 * np.pi * xi) + 10 * np.pi * xi * np.cos(10 * np.pi * xi))/ (2 * np.pi**3 * xi**3)
@@ -105,11 +110,13 @@ plt.grid()
 plt.plot(line, np.absolute(analytical_transformation(line)))
 plt.xlabel("x")
 plt.ylabel("Аmplitude")
+plt.show()
 
 plt.grid()
 plt.plot(line, np.angle(analytical_transformation(line)))
 plt.xlabel("x")
 plt.ylabel("Phase")
+plt.show()
 
 gauss_2d = lambda x, y: np.exp(-x ** 2 - y ** 2)
 
@@ -121,6 +128,7 @@ phase = arr[1].imshow(np.angle(gauss_2d(X, Y)), cmap='hot', interpolation='neare
 fig.colorbar(phase, ax=arr[1])
 arr[0].set_title('Аmplitude')
 arr[1].set_title('Phase')
+plt.show()
 
 def fft_2d(Z, a, b, N, M):
     for i in range(N):
@@ -143,6 +151,7 @@ fig.colorbar(amp, ax=arr[0])
 phase = arr[1].imshow(np.angle(fft_2d_z), cmap='hot', interpolation='nearest')
 arr[1].set_title('Phase')
 fig.colorbar(phase, ax=arr[1])
+plt.show()
 
 input_field_2d = lambda x, y: input_field(x)*input_field(y)
 
@@ -154,6 +163,7 @@ phase = arr[1].imshow(np.angle(input_field_2d(X, Y)), cmap='hot', interpolation=
 fig.colorbar(phase, ax=arr[1])
 arr[0].set_title('Аmplitude')
 arr[1].set_title('Phase')
+plt.show()
 
 def analytical_transformation_2d(x, y):
     return analytical_transformation(x)*analytical_transformation(y)
@@ -166,6 +176,7 @@ phase = arr[1].imshow(np.angle(analytical_transformation_2d(X, Y)), cmap='hot', 
 fig.colorbar(phase, ax=arr[1])
 arr[0].set_title('Аmplitude')
 arr[1].set_title('Phase')
+plt.show()
 
 M = 256
 N = 128
@@ -183,3 +194,4 @@ fig.colorbar(amp, ax=arr[0])
 phase = arr[1].imshow(np.angle(fft_2d_z), cmap='hot', interpolation='nearest')
 arr[1].set_title('Phase')
 fig.colorbar(phase, ax=arr[1])
+plt.show()
