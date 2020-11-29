@@ -5,15 +5,13 @@ from scipy import integrate
 a = 5
 M = 4096
 N = 512
-
-b = abs(N ** 2 / (4 * a * M))
-
+b = N ** 2 / (4 * a * M)
 gauss = lambda x: np.exp(-(x ** 2))
-input_field = lambda x: x ** 2
+input_field = lambda x: np.exp(2j * np.pi * x) + np.exp(-5j * np.pi * x)
 
 line = np.linspace(-a, a, N, endpoint=False)
 plt.grid()
-plt.title("Аmplitude and Phase")
+plt.title("Аmplitude and Phase gauss function")
 plt.plot(line, np.absolute(gauss(line)))
 plt.plot(line, np.angle(gauss(line)))
 plt.show()
@@ -37,13 +35,13 @@ fft_y = fft(gauss(line), a, -a)
 line = np.linspace(-b, b, N, endpoint=False)
 
 plt.grid()
-plt.title("Аmplitude and phase")
+plt.title("Аmplitude and phase fft of gauss func")
 plt.plot(line, np.absolute(fft_y))
 plt.plot(line, np.angle(fft_y))
 plt.show()
 
 
-def fourier_transformation_numeric(a, b):
+def custom_numeric_ft(a, b):
     step = 2 * b / (N - 1)
     Y = np.zeros(N, dtype=np.complex128)
     for i in range(len(Y)):
@@ -53,19 +51,22 @@ def fourier_transformation_numeric(a, b):
 
 
 line = np.linspace(-a, a, N, endpoint=False)
-numeric_y = fourier_transformation_numeric(-a, a)
-line = np.linspace(-b, b, N, endpoint=False)
+numeric_y = custom_numeric_ft(-a, a)
 
 plt.grid()
+plt.title("Аmplitude and Phase of custom numeric Fourier transmission")
 plt.plot(line, np.absolute(numeric_y))
-plt.ylabel("Аmplitude and Phase")
 plt.grid()
 plt.plot(line, np.angle(numeric_y))
+plt.show()
 
-line = np.linspace(-a, a, N, endpoint=False)
 plt.grid()
+plt.title("Аmplitude of input field")
 plt.plot(line, np.absolute(input_field(line)))
-plt.title("Аmplitude and Phase")
+plt.grid()
+plt.show()
+
+plt.title("Phase of input field")
 plt.plot(line, np.angle(input_field(line)))
 plt.show()
 
@@ -74,20 +75,18 @@ fft_y = fft(input_field(line), a, -a)
 line = np.linspace(-b, b, N, endpoint=False)
 
 plt.grid()
-plt.title("Аmplitude and Phase")
+plt.title("Аmplitude and Phase fft of input field")
 plt.plot(line, np.absolute(fft_y))
 plt.plot(line, np.angle(fft_y))
 plt.show()
 
 
 def analytical_transformation(xi):
-    return ((50 * np.pi ** 2 * xi ** 2 - 1) * np.sin(10 * np.pi * xi) + 10 * np.pi * xi * np.cos(10 * np.pi * xi)) / (
-                2 * np.pi ** 3 * xi ** 3)
+    return 7 * np.sin(10 * np.pi * xi) / (np.pi * (2 * xi ** 2 + 3 * xi - 5))
 
-
-line = np.linspace(-a, a, N)
+line = np.linspace(-a, a, N, endpoint=False)
 plt.grid()
-plt.title("Аmplitude and Phase")
+plt.title("Аmplitude and Phase of analytical solution of input field")
 plt.plot(line, np.absolute(analytical_transformation(line)))
 plt.plot(line, np.angle(analytical_transformation(line)))
 plt.show()
@@ -100,8 +99,8 @@ fig, arr = plt.subplots(1, 2, figsize=(15, 5))
 amp = arr[0].imshow(np.absolute(gauss_2d(X, Y)), cmap='hot', interpolation='nearest')
 phase = arr[1].imshow(np.angle(gauss_2d(X, Y)), cmap='hot', interpolation='nearest')
 fig.colorbar(phase, ax=arr[1])
-arr[0].set_title('Аmplitude')
-arr[1].set_title('Phase')
+arr[0].set_title('Аmplitude Gauss 2d')
+arr[1].set_title('Phase Gauss 2d')
 plt.show()
 
 
@@ -122,39 +121,38 @@ X, Y = np.meshgrid(line, line)
 
 fig, arr = plt.subplots(1, 2, figsize=(15, 5))
 amp = arr[0].imshow(np.absolute(fft_2d_z), cmap='hot', interpolation='nearest')
-arr[0].set_title('Аmplitude')
+arr[0].set_title('Аmplitude fft 3d gauss')
 fig.colorbar(amp, ax=arr[0])
 phase = arr[1].imshow(np.angle(fft_2d_z), cmap='hot', interpolation='nearest')
-arr[1].set_title('Phase')
+arr[1].set_title('Phase fft 3d gauss')
 fig.colorbar(phase, ax=arr[1])
 plt.show()
 
 input_field_2d = lambda x, y: input_field(x) * input_field(y)
 
 line = np.linspace(-a, a, N, endpoint=False)
-X, Y = np.meshgrid(line, line)
 fig, arr = plt.subplots(1, 2, figsize=(15, 5))
 amp = arr[0].imshow(np.absolute(input_field_2d(X, Y)), cmap='hot', interpolation='nearest')
 phase = arr[1].imshow(np.angle(input_field_2d(X, Y)), cmap='hot', interpolation='nearest')
 fig.colorbar(phase, ax=arr[1])
-arr[0].set_title('Аmplitude')
-arr[1].set_title('Phase')
+arr[0].set_title('Аmplitude input field 3d')
+arr[1].set_title('Phase input field 3d')
 plt.show()
 
 
 def analytical_transformation_2d(x, y):
     return analytical_transformation(x) * analytical_transformation(y)
 
-line = np.linspace(-a, a, N, endpoint=False)
+
+line = np.linspace(-b, b, N, endpoint=False)
 X, Y = np.meshgrid(line, line)
 fig, arr = plt.subplots(1, 2, figsize=(15, 5))
 amp = arr[0].imshow(np.absolute(analytical_transformation_2d(X, Y)), cmap='hot', interpolation='nearest')
 phase = arr[1].imshow(np.angle(analytical_transformation_2d(X, Y)), cmap='hot', interpolation='nearest')
 fig.colorbar(phase, ax=arr[1])
-arr[0].set_title('Аmplitude')
-arr[1].set_title('Phase')
+arr[0].set_title('Аmplitude analytical 3d')
+arr[1].set_title('Phase analytical 3d')
 plt.show()
-
 
 line = np.linspace(-a, a, N, endpoint=False)
 X, Y = np.meshgrid(line, line)
@@ -164,9 +162,9 @@ line = np.linspace(-b, b, N, endpoint=False)
 X, Y = np.meshgrid(line, line)
 
 fig, arr = plt.subplots(1, 2, figsize=(15, 5))
-arr[0].set_title('Аmplitude')
+arr[0].set_title('Аmplitude input fft 3d')
 fig.colorbar(arr[0].imshow(np.absolute(fft_2d_z), cmap='hot', interpolation='nearest'), ax=arr[0])
 phase = arr[1].imshow(np.angle(fft_2d_z), cmap='hot', interpolation='nearest')
-arr[1].set_title('Phase')
+arr[1].set_title('Phase input fft 3d')
 fig.colorbar(phase, ax=arr[1])
 plt.show()
