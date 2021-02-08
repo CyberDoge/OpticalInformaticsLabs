@@ -13,7 +13,7 @@ let h_x = (b - a) / n;
 function f_x(x) {
   return math.exp(math.complex(0, BETA * x));
 }
-
+ 
 function K_eps_x(eps, x) {
   return math.complex(math.exp(-ALFA * math.abs(math.complex(x, eps))));
 }
